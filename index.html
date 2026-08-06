@@ -1,0 +1,1226 @@
+<title>Firmar el contrato de arriendo</title>
+
+<style>
+  :root {
+    --paper:      #FCFBF8;
+    --paper-alt:  #F2F0EA;
+    --ink:        #17191C;
+    --muted:      #5A6069;
+    --rule:       #DCDAD2;
+    --accent:     #1E4C5C;
+    --accent-ink: #FFFFFF;
+    --accent-bg:  #E8F0F2;
+    --ok:         #2C6E49;
+    --warn:       #8A5A1F;
+    --bad:        #9B3226;
+    --field-bg:   #E3EDF0;
+
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans:  "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #14161A; --paper-alt: #1C1F24; --ink: #E6E4DE; --muted: #969CA5;
+      --rule: #2E323A; --accent: #7FBDD0; --accent-ink: #10181C; --accent-bg: #17272C;
+      --ok: #6FBF8E; --warn: #D9A85C; --bad: #E08174; --field-bg: #17272C;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14161A; --paper-alt: #1C1F24; --ink: #E6E4DE; --muted: #969CA5;
+    --rule: #2E323A; --accent: #7FBDD0; --accent-ink: #10181C; --accent-bg: #17272C;
+    --ok: #6FBF8E; --warn: #D9A85C; --bad: #E08174; --field-bg: #17272C;
+  }
+  :root[data-theme="light"] {
+    --paper: #FCFBF8; --paper-alt: #F2F0EA; --ink: #17191C; --muted: #5A6069;
+    --rule: #DCDAD2; --accent: #1E4C5C; --accent-ink: #FFFFFF; --accent-bg: #E8F0F2;
+    --ok: #2C6E49; --warn: #8A5A1F; --bad: #9B3226; --field-bg: #E3EDF0;
+  }
+
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: var(--sans); font-size: 16px; line-height: 1.55;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 40rem; margin: 0 auto; padding: 1.6rem 1.1rem 5rem;
+          display: flex; flex-direction: column; gap: 1.6rem; }
+
+  h1 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; margin: 0; text-wrap: balance; }
+  h2 { font-size: .76rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--accent); margin: 0; padding-bottom: .45rem; border-bottom: 1px solid var(--rule); }
+  h3 { font-size: .95rem; font-weight: 600; margin: 0; }
+  p  { margin: 0; }
+
+  .paso { display: flex; flex-direction: column; gap: 1rem; }
+  .oculto { display: none !important; }
+
+  .barra { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+           padding-bottom: .8rem; border-bottom: 1px solid var(--rule); }
+  .barra .marca { font-family: var(--serif); font-size: 1.05rem; font-weight: 600; margin-right: auto; }
+  .chip { font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 700;
+          background: var(--accent-bg); color: var(--accent); padding: .25rem .55rem; border-radius: 999px; }
+
+  label { display: flex; flex-direction: column; gap: .28rem; font-size: .82rem; color: var(--muted); }
+  label > span.req::after { content: " *"; color: var(--bad); }
+  input, select, textarea {
+    font: inherit; font-size: 1rem; color: var(--ink); background: var(--paper);
+    border: 1px solid var(--rule); border-radius: 6px; padding: .6rem .7rem; width: 100%;
+  }
+  input:focus, select:focus, textarea:focus, button:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 1px;
+  }
+  textarea { min-height: 4.5rem; resize: vertical; }
+  .rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .8rem; }
+
+  button {
+    font: inherit; font-weight: 600; cursor: pointer; border-radius: 7px;
+    border: 1px solid var(--rule); background: var(--paper-alt); color: var(--ink);
+    padding: .7rem 1rem; min-height: 2.9rem;
+  }
+  button.primario { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  button.grande { width: 100%; font-size: 1.02rem; min-height: 3.4rem; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .botonera { display: flex; gap: .7rem; flex-wrap: wrap; }
+  .botonera > * { flex: 1 1 9rem; }
+
+  .tarjeta { border: 1px solid var(--rule); border-radius: 9px; padding: 1rem;
+             display: flex; flex-direction: column; gap: .8rem; background: var(--paper-alt); }
+  .aviso { background: var(--accent-bg); border-left: 3px solid var(--accent);
+           padding: .85rem 1rem; font-size: .9rem; display: flex; flex-direction: column; gap: .4rem; }
+  .aviso.alerta { background: color-mix(in srgb, var(--bad) 10%, transparent); border-left-color: var(--bad); }
+
+  /* ---- acta ---- */
+  .grupo-titulo { font-size: .7rem; letter-spacing: .13em; text-transform: uppercase; font-weight: 700;
+                  color: var(--accent); background: var(--accent-bg); padding: .45rem .7rem; border-radius: 5px; }
+  .item { display: grid; grid-template-columns: 1fr auto; gap: .5rem; align-items: center;
+          padding: .5rem 0; border-bottom: 1px solid var(--rule); }
+  .item .nombre { font-size: .93rem; }
+  .estados { display: flex; gap: .3rem; }
+  .estados button { padding: .4rem .6rem; min-height: 2.3rem; font-size: .78rem; font-weight: 600; }
+  .estados button[aria-pressed="true"][data-v="B"] { background: var(--ok); color: #fff; border-color: var(--ok); }
+  .estados button[aria-pressed="true"][data-v="R"] { background: var(--warn); color: #fff; border-color: var(--warn); }
+  .estados button[aria-pressed="true"][data-v="M"] { background: var(--bad); color: #fff; border-color: var(--bad); }
+  .item .obs { grid-column: 1 / -1; }
+  .item .obs input { font-size: .88rem; padding: .4rem .55rem; }
+
+  /* ---- fotos ---- */
+  .fotos { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .8rem; }
+  .foto-caja { border: 1px dashed var(--rule); border-radius: 8px; padding: .8rem; text-align: center;
+               display: flex; flex-direction: column; gap: .5rem; align-items: center; }
+  .foto-caja img { max-width: 100%; border-radius: 5px; display: block; }
+  .foto-caja .rot { font-size: .78rem; color: var(--muted); }
+  .foto-caja input[type=file] { display: none; }
+  .foto-caja .btn-foto { font-size: .85rem; padding: .5rem .8rem; min-height: 2.6rem; }
+
+  /* ---- firma ---- */
+  .firma-caja { display: flex; flex-direction: column; gap: .5rem; }
+  canvas.pad { width: 100%; height: 11rem; border: 1px solid var(--rule); border-radius: 8px;
+               background: #FFFFFF; touch-action: none; display: block; }
+  .firma-pie { display: flex; justify-content: space-between; align-items: center; gap: .6rem; font-size: .8rem; color: var(--muted); }
+  .firma-pie button { padding: .4rem .7rem; min-height: 2.2rem; font-size: .82rem; }
+
+  /* ---- contrato final ---- */
+  .doc { font-family: var(--serif); font-size: .95rem; line-height: 1.6;
+         display: flex; flex-direction: column; gap: 1.4rem; }
+  .doc header { text-align: center; display: flex; flex-direction: column; gap: .3rem;
+                padding-bottom: 1rem; border-bottom: 1px solid var(--rule); }
+  .doc header .t { font-size: 1.75rem; font-weight: 700; letter-spacing: .01em;
+                   text-transform: uppercase; }
+  .doc header .s2 { font-family: var(--serif); font-size: 1.02rem; font-style: italic;
+                    color: var(--muted); margin-top: -.15rem; }
+  .doc header .s { font-family: var(--sans); font-size: .76rem; letter-spacing: .13em;
+                   text-transform: uppercase; color: var(--muted); }
+  .doc section { display: flex; flex-direction: column; gap: .9rem; }
+  .doc ol { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: .9rem; }
+  .doc ol li { display: grid; grid-template-columns: 2rem 1fr; gap: .35rem; align-items: baseline; }
+  .doc ol .n { font-family: var(--sans); font-size: .78rem; font-weight: 600; color: var(--muted);
+               font-variant-numeric: tabular-nums; }
+  .doc .v { font-weight: 600; }
+
+  table { border-collapse: collapse; width: 100%; font-family: var(--sans); font-size: .8rem; }
+  th, td { border: 1px solid var(--rule); padding: .45rem .55rem; text-align: left; }
+  th { background: var(--paper-alt); font-weight: 600; }
+  .tabla-scroll { overflow-x: auto; }
+  td.centro { text-align: center; }
+
+  .firmas-final { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 1rem; }
+  .firma-final { border: 1px solid var(--rule); border-radius: 7px; padding: .9rem;
+                 display: flex; flex-direction: column; gap: .3rem; font-family: var(--sans); font-size: .82rem; }
+  .firma-final .rol { font-size: .66rem; letter-spacing: .13em; text-transform: uppercase;
+                      color: var(--accent); font-weight: 700; margin-bottom: .25rem; }
+  .firma-final img { width: 100%; max-height: 5.5rem; object-fit: contain; object-position: left bottom;
+                     border-bottom: 1px solid var(--ink); margin-top: .5rem; background: #fff; border-radius: 3px; }
+  .firma-final .pie-f { font-size: .72rem; color: var(--muted); padding-top: .3rem; }
+
+  .sello { font-family: var(--sans); font-size: .74rem; color: var(--muted); background: var(--paper-alt);
+           border: 1px solid var(--rule); border-radius: 7px; padding: .8rem 1rem;
+           display: flex; flex-direction: column; gap: .2rem; }
+  .sello .cod { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .82rem;
+                color: var(--ink); word-break: break-all; }
+
+  .link-salida { width: 100%; font-family: ui-monospace, Menlo, monospace; font-size: .72rem; }
+
+  .listado-deptos { display: flex; flex-direction: column; gap: .5rem; }
+  .depto-fila { display: flex; align-items: center; gap: .6rem; padding: .55rem .7rem;
+                border: 1px solid var(--rule); border-radius: 7px; font-size: .88rem; }
+  .depto-fila .d { margin-right: auto; }
+  .depto-fila .m { color: var(--muted); font-size: .8rem; font-variant-numeric: tabular-nums; }
+  .depto-fila button { padding: .3rem .55rem; min-height: 2rem; font-size: .78rem; }
+
+  @media print {
+    body { background: #fff; color: #000; }
+    .no-imprimir { display: none !important; }
+    .wrap { max-width: none; padding: 0; gap: 1rem; }
+    .doc { font-size: 10.5pt; }
+    .doc section { break-inside: avoid; }
+    .doc ol li { break-inside: avoid; }
+    .firma-final { break-inside: avoid; }
+    table { break-inside: auto; }
+    tr { break-inside: avoid; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="wrap">
+
+  <!-- ============ FIRMAR: ACTA ============ -->
+  <div id="v-acta" class="paso oculto">
+    <div class="barra">
+      <span class="marca">Entrega del departamento</span>
+      <span class="chip" id="chip-depto"></span>
+    </div>
+    <div class="aviso">
+      <p><strong id="acta-dir"></strong></p>
+      <p id="acta-quien"></p>
+    </div>
+
+    <h2>Paso 1 · Revisar el departamento</h2>
+    <div class="rejilla">
+      <label><span>Número de llaves</span><input id="a-llaves" inputmode="numeric"></label>
+      <label><span>Número de ampolletas</span><input id="a-ampolletas" inputmode="numeric"></label>
+      <label><span>Lámparas</span><input id="a-lamparas"></label>
+    </div>
+    <div id="lista-acta" class="listado-deptos"></div>
+    <label><span>Notas adicionales</span><textarea id="a-notas" placeholder="Ej: No incluye el microondas."></textarea></label>
+    <button class="primario grande" onclick="ir('identidad')">Continuar</button>
+  </div>
+
+  <!-- ============ FIRMAR: IDENTIDAD ============ -->
+  <div id="v-identidad" class="paso oculto">
+    <div class="barra">
+      <span class="marca">Verificación de identidad</span>
+      <button onclick="ir('acta')">Volver</button>
+    </div>
+    <h2>Paso 2 · Las dos fotos</h2>
+    <div class="fotos">
+      <div class="foto-caja">
+        <span class="rot">1 · Documento del arrendatario</span>
+        <img id="img-doc" class="oculto" alt="Documento del arrendatario">
+        <button class="btn-foto" type="button" onclick="document.getElementById('f-doc').click()">Tomar foto</button>
+        <input type="file" id="f-doc" accept="image/*" capture="environment" onchange="cargarFoto(this,'img-doc')">
+      </div>
+      <div class="foto-caja">
+        <span class="rot">El arrendatario con su documento</span>
+        <img id="img-sel" class="oculto" alt="Arrendatario con su documento">
+        <button class="btn-foto" type="button" onclick="document.getElementById('f-sel').click()">Tomar foto</button>
+        <input type="file" id="f-sel" accept="image/*" capture="user" onchange="cargarFoto(this,'img-sel')">
+      </div>
+    </div>
+    <div class="aviso">
+      <p><strong>Las dos fotos son del arrendatario, no de la corredora.</strong> La primera es su documento, y sirve para comparar la firma con la que va a hacer ahora. La segunda es él sosteniendo ese documento, y prueba que quien firma es su dueño.</p>
+    </div>
+    <div id="docs-acomp"></div>
+    <button class="primario grande" onclick="ir('firmas')">Continuar a las firmas</button>
+  </div>
+
+  <!-- ============ FIRMAR: FIRMAS ============ -->
+  <div id="v-firmas" class="paso oculto">
+    <div class="barra">
+      <span class="marca">Firmas</span>
+      <button onclick="ir('identidad')">Volver</button>
+    </div>
+    <h2>Paso 3 · Firmar</h2>
+    <div class="aviso">
+      <p>Se puede firmar <strong>con el dedo o con lápiz táctil</strong>, lo que tengan a mano.</p>
+    </div>
+
+    <div class="firma-caja">
+      <h3 id="rot-firma-arr">Firma del arrendatario</h3>
+      <canvas class="pad" id="pad-arr"></canvas>
+      <div class="firma-pie">
+        <span id="est-arr">Sin firmar</span>
+        <button onclick="borrarPad('arr')">Borrar y repetir</button>
+      </div>
+    </div>
+
+    <div class="firma-caja">
+      <h3 id="rot-firma-cor">Firma de la corredora</h3>
+      <canvas class="pad" id="pad-cor"></canvas>
+      <div class="firma-pie">
+        <span id="est-cor">Sin firmar</span>
+        <button onclick="borrarPad('cor')">Borrar y repetir</button>
+      </div>
+    </div>
+
+    <button class="primario grande" id="btn-generar" onclick="generarContrato()">Generar el contrato firmado</button>
+    <p id="falta-firma" class="oculto" style="font-size:.86rem;color:var(--bad)"></p>
+  </div>
+
+  <!-- ============ RESULTADO ============ -->
+  <div id="v-final" class="paso oculto">
+    <div class="barra no-imprimir">
+      <span class="marca">Contrato firmado</span>
+      <button onclick="ir('firmas')">Volver</button>
+    </div>
+    <div class="botonera no-imprimir">
+      <button class="primario grande" onclick="window.print()">Guardar como PDF</button>
+    </div>
+    <div class="aviso no-imprimir">
+      <p>Toca <strong>Guardar como PDF</strong>. En iPhone se abre Imprimir y arriba a la derecha eliges compartir para guardarlo o mandarlo. En Android, en el menú de impresión eliges «Guardar como PDF».</p>
+    </div>
+    <div id="doc-final" class="doc"></div>
+  </div>
+
+</div>
+
+<script>
+/* Muestra cualquier error en pantalla. Sin esto, en un teléfono un error de
+   JavaScript se traduce en «aprieto el botón y no pasa nada», sin más pistas. */
+(function () {
+  function mostrar(txt) {
+    var d = document.getElementById("caja-error");
+    if (!d) {
+      d = document.createElement("div");
+      d.id = "caja-error";
+      d.style.cssText = "position:fixed;left:0;right:0;bottom:0;z-index:9999;" +
+        "background:#7A1F16;color:#fff;font:13px/1.45 system-ui,sans-serif;" +
+        "padding:.9rem 1rem;max-height:45vh;overflow:auto;white-space:pre-wrap;" +
+        "box-shadow:0 -4px 16px rgba(0,0,0,.3)";
+      var b = document.createElement("button");
+      b.textContent = "Cerrar";
+      b.style.cssText = "float:right;margin-left:1rem;background:#fff;color:#7A1F16;" +
+        "border:0;border-radius:6px;padding:.4rem .8rem;font-weight:700";
+      b.onclick = function () { d.remove(); };
+      d.appendChild(b);
+      (document.body || document.documentElement).appendChild(d);
+    }
+    var p = document.createElement("div");
+    p.textContent = txt;
+    d.appendChild(p);
+  }
+  window.addEventListener("error", function (e) {
+    mostrar("⚠️ " + e.message + "\n" + (e.filename || "") + " línea " + e.lineno);
+  });
+  window.addEventListener("unhandledrejection", function (e) {
+    mostrar("⚠️ " + e.reason);
+  });
+  window.__verError = mostrar;
+})();
+
+"use strict";
+
+/* Generador de códigos QR, modo byte, nivel de corrección M, versiones 1 a 10.
+   Escrito a mano porque la página no puede cargar librerías de afuera.
+   Devuelve una matriz de true/false lista para dibujar. */
+
+const QR = (function () {
+  // datos por versión (nivel M): [codewords de datos, EC por bloque, bloques g1, cw g1, bloques g2, cw g2]
+  const INFO = {
+    1:[16,10,1,16,0,0],   2:[28,16,1,28,0,0],   3:[44,26,1,44,0,0],
+    4:[64,18,2,32,0,0],   5:[86,24,2,43,0,0],   6:[108,16,4,27,0,0],
+    7:[124,18,4,31,0,0],  8:[154,22,2,38,2,39], 9:[182,22,3,36,2,37],
+    10:[216,26,4,43,1,44]
+  };
+  const ALINEACION = {
+    1:[], 2:[6,18], 3:[6,22], 4:[6,26], 5:[6,30], 6:[6,34],
+    7:[6,22,38], 8:[6,24,42], 9:[6,26,46], 10:[6,28,50]
+  };
+
+  // ── aritmética en GF(256) para Reed-Solomon ──
+  const EXP = new Uint8Array(512), LOG = new Uint8Array(256);
+  (function () {
+    let x = 1;
+    for (let i = 0; i < 255; i++) {
+      EXP[i] = x; LOG[x] = i;
+      x <<= 1; if (x & 0x100) x ^= 0x11d;
+    }
+    for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+  })();
+  const mul = (a, b) => (a === 0 || b === 0) ? 0 : EXP[LOG[a] + LOG[b]];
+
+  function polinomioGenerador(grado) {
+    let p = [1];
+    for (let i = 0; i < grado; i++) {
+      const n = new Array(p.length + 1).fill(0);
+      for (let j = 0; j < p.length; j++) {
+        n[j] ^= p[j];
+        n[j + 1] ^= mul(p[j], EXP[i]);
+      }
+      p = n;
+    }
+    return p;
+  }
+
+  function correccion(datos, ecLen) {
+    const gen = polinomioGenerador(ecLen);
+    const res = new Array(datos.length + ecLen).fill(0);
+    datos.forEach((d, i) => res[i] = d);
+    for (let i = 0; i < datos.length; i++) {
+      const factor = res[i];
+      if (factor === 0) continue;
+      for (let j = 0; j < gen.length; j++) res[i + j] ^= mul(gen[j], factor);
+    }
+    return res.slice(datos.length);
+  }
+
+  // ── datos ──
+  function aBytes(txt) {
+    const out = [];
+    for (const ch of txt) {
+      const c = ch.codePointAt(0);
+      if (c < 0x80) out.push(c);
+      else if (c < 0x800) out.push(0xc0 | (c >> 6), 0x80 | (c & 63));
+      else if (c < 0x10000) out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63));
+      else out.push(0xf0 | (c >> 18), 0x80 | ((c >> 12) & 63), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63));
+    }
+    return out;
+  }
+
+  /* Solo hasta la versión 7: de la 8 en adelante los datos se reparten en dos
+     grupos de bloques de distinto largo, y esa parte no está verificada contra
+     el estándar. Con 7 alcanzan 122 caracteres, de sobra para el sello. */
+  function versionPara(nBytes) {
+    for (let v = 1; v <= 7; v++) {
+      const capacidad = INFO[v][0] - 2 - (v >= 10 ? 1 : 0); // 4 bits modo + 8/16 bits largo
+      if (nBytes <= capacidad) return v;
+    }
+    return 0;
+  }
+
+  function bitsDatos(bytes, version) {
+    const bits = [];
+    const push = (val, n) => { for (let i = n - 1; i >= 0; i--) bits.push((val >> i) & 1); };
+    push(0b0100, 4);                          // modo byte
+    push(bytes.length, version < 10 ? 8 : 16);
+    bytes.forEach(b => push(b, 8));
+    const total = INFO[version][0] * 8;
+    for (let i = 0; i < 4 && bits.length < total; i++) bits.push(0);   // terminador
+    while (bits.length % 8) bits.push(0);
+    const relleno = [0xec, 0x11];
+    let k = 0;
+    while (bits.length < total) { push(relleno[k++ % 2], 8); }
+    const cw = [];
+    for (let i = 0; i < bits.length; i += 8) {
+      let b = 0;
+      for (let j = 0; j < 8; j++) b = (b << 1) | bits[i + j];
+      cw.push(b);
+    }
+    return cw;
+  }
+
+  function intercalar(cw, version) {
+    const [, ecLen, b1, c1, b2, c2] = INFO[version];
+    const bloques = [], ecs = [];
+    let p = 0;
+    for (let i = 0; i < b1; i++) { bloques.push(cw.slice(p, p + c1)); p += c1; }
+    for (let i = 0; i < b2; i++) { bloques.push(cw.slice(p, p + c2)); p += c2; }
+    bloques.forEach(b => ecs.push(correccion(b, ecLen)));
+    const out = [];
+    const maxD = Math.max(...bloques.map(b => b.length));
+    for (let i = 0; i < maxD; i++)
+      bloques.forEach(b => { if (i < b.length) out.push(b[i]); });
+    for (let i = 0; i < ecLen; i++) ecs.forEach(e => out.push(e[i]));
+    return out;
+  }
+
+  // ── matriz ──
+  function nuevaMatriz(n) {
+    return { m: Array.from({ length: n }, () => new Array(n).fill(null)), n };
+  }
+  function ponerPatrones(M, version) {
+    const n = M.n, m = M.m;
+    const buscador = (fx, fy) => {
+      for (let y = -1; y <= 7; y++) for (let x = -1; x <= 7; x++) {
+        const px = fx + x, py = fy + y;
+        if (px < 0 || py < 0 || px >= n || py >= n) continue;
+        const borde = (x === 0 || x === 6) && y >= 0 && y <= 6;
+        const arriba = (y === 0 || y === 6) && x >= 0 && x <= 6;
+        const centro = x >= 2 && x <= 4 && y >= 2 && y <= 4;
+        m[py][px] = borde || arriba || centro;
+      }
+    };
+    buscador(0, 0); buscador(n - 7, 0); buscador(0, n - 7);
+    for (let i = 8; i < n - 8; i++) { m[6][i] = i % 2 === 0; m[i][6] = i % 2 === 0; }
+    const al = ALINEACION[version];
+    al.forEach(cy => al.forEach(cx => {
+      if ((cx === 6 && cy === 6) || (cx === 6 && cy === n - 7) || (cx === n - 7 && cy === 6)) return;
+      for (let y = -2; y <= 2; y++) for (let x = -2; x <= 2; x++)
+        m[cy + y][cx + x] = Math.max(Math.abs(x), Math.abs(y)) !== 1;
+    }));
+    m[n - 8][8] = true;                       // módulo oscuro fijo
+  }
+
+  function zonasFormato(M) {
+    const n = M.n, r = [];
+    for (let i = 0; i <= 8; i++) { r.push([8, i]); r.push([i, 8]); }
+    for (let i = n - 8; i < n; i++) { r.push([8, i]); r.push([i, 8]); }
+    return r;
+  }
+
+  function ponerDatos(M, cw) {
+    const n = M.n, m = M.m;
+    const bits = [];
+    cw.forEach(b => { for (let i = 7; i >= 0; i--) bits.push((b >> i) & 1); });
+    let idx = 0, arriba = true;
+    for (let col = n - 1; col > 0; col -= 2) {
+      if (col === 6) col--;
+      for (let i = 0; i < n; i++) {
+        const fila = arriba ? n - 1 - i : i;
+        for (let c = 0; c < 2; c++) {
+          const x = col - c;
+          if (m[fila][x] !== null) continue;
+          m[fila][x] = idx < bits.length ? bits[idx++] === 1 : false;
+        }
+      }
+      arriba = !arriba;
+    }
+  }
+
+  const MASCARAS = [
+    (r, c) => (r + c) % 2 === 0,
+    (r) => r % 2 === 0,
+    (r, c) => c % 3 === 0,
+    (r, c) => (r + c) % 3 === 0,
+    (r, c) => (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0,
+    (r, c) => (r * c) % 2 + (r * c) % 3 === 0,
+    (r, c) => ((r * c) % 2 + (r * c) % 3) % 2 === 0,
+    (r, c) => ((r + c) % 2 + (r * c) % 3) % 2 === 0,
+  ];
+
+  function formatoBits(mascara) {
+    // nivel M = 0b00
+    let datos = (0b00 << 3) | mascara;
+    let v = datos << 10;
+    for (let i = 4; i >= 0; i--) if ((v >> (i + 10)) & 1) v ^= 0b10100110111 << i;
+    return ((datos << 10) | v) ^ 0b101010000010010;
+  }
+
+  /* Los 15 bits del formato van del más significativo (14) al menos (0),
+     en este orden de posiciones. Se escriben dos veces, por seguridad. */
+  function ponerFormato(M, mascara) {
+    const n = M.n, m = M.m, f = formatoBits(mascara);
+    const bit = i => ((f >> i) & 1) === 1;
+
+    const copia1 = [[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],
+                    [7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]];
+    const copia2 = [[n-1,8],[n-2,8],[n-3,8],[n-4,8],[n-5,8],[n-6,8],[n-7,8],
+                    [8,n-8],[8,n-7],[8,n-6],[8,n-5],[8,n-4],[8,n-3],[8,n-2],[8,n-1]];
+    for (let k = 0; k < 15; k++) {
+      const b = bit(14 - k);
+      m[copia1[k][0]][copia1[k][1]] = b;
+      m[copia2[k][0]][copia2[k][1]] = b;
+    }
+    m[n - 8][8] = true;   // módulo oscuro fijo
+  }
+
+  function penalizacion(m, n) {
+    let p = 0;
+    // 1. corridas de 5 o más
+    for (let i = 0; i < n; i++) {
+      for (const fila of [true, false]) {
+        let run = 1;
+        for (let j = 1; j < n; j++) {
+          const a = fila ? m[i][j] : m[j][i], b = fila ? m[i][j-1] : m[j-1][i];
+          if (a === b) run++;
+          else { if (run >= 5) p += run - 2; run = 1; }
+        }
+        if (run >= 5) p += run - 2;
+      }
+    }
+    // 2. bloques 2x2
+    for (let i = 0; i < n - 1; i++) for (let j = 0; j < n - 1; j++)
+      if (m[i][j] === m[i][j+1] && m[i][j] === m[i+1][j] && m[i][j] === m[i+1][j+1]) p += 3;
+    // 3. patrón 1:1:3:1:1
+    const pat = [true,false,true,true,true,false,true,false,false,false,false];
+    const pat2 = [false,false,false,false,true,false,true,true,true,false,true];
+    for (let i = 0; i < n; i++) for (let j = 0; j <= n - 11; j++) {
+      let ok1 = true, ok2 = true, ok3 = true, ok4 = true;
+      for (let k = 0; k < 11; k++) {
+        if (m[i][j+k] !== pat[k]) ok1 = false;
+        if (m[i][j+k] !== pat2[k]) ok2 = false;
+        if (m[j+k][i] !== pat[k]) ok3 = false;
+        if (m[j+k][i] !== pat2[k]) ok4 = false;
+      }
+      p += (ok1?40:0) + (ok2?40:0) + (ok3?40:0) + (ok4?40:0);
+    }
+    // 4. proporción de oscuros
+    let osc = 0;
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) if (m[i][j]) osc++;
+    p += Math.floor(Math.abs(osc * 100 / (n * n) - 50) / 5) * 10;
+    return p;
+  }
+
+  function generar(texto) {
+    const bytes = aBytes(texto);
+    const version = versionPara(bytes.length);
+    if (!version) return null;                     // texto demasiado largo
+    const cw = intercalar(bitsDatos(bytes, version), version);
+    const n = version * 4 + 17;
+
+    let mejor = null, mejorP = Infinity;
+    for (let mask = 0; mask < 8; mask++) {
+      const M = nuevaMatriz(n);
+      ponerPatrones(M, version);
+      const reservadas = M.m.map(f => f.map(v => v !== null));
+      zonasFormato(M).forEach(([x, y]) => { if (y < n && x < n) reservadas[y][x] = true; });
+      const M2 = nuevaMatriz(n);
+      ponerPatrones(M2, version);
+      zonasFormato(M2).forEach(([x, y]) => { if (y < n && x < n && M2.m[y][x] === null) M2.m[y][x] = false; });
+      ponerDatos(M2, cw);
+      for (let y = 0; y < n; y++) for (let x = 0; x < n; x++)
+        if (!reservadas[y][x] && MASCARAS[mask](y, x)) M2.m[y][x] = !M2.m[y][x];
+      ponerFormato(M2, mask);
+      const p = penalizacion(M2.m, n);
+      if (p < mejorP) { mejorP = p; mejor = M2.m; }
+    }
+    return mejor;
+  }
+
+  return { generar };
+})();
+
+
+
+/* Todo lo que hace falta llega dentro del link. Esta versión no guarda nada
+   en el teléfono: ni departamentos, ni cuentas, ni contratos. */
+let datos = null;
+const fotos = { doc: null, sel: null, acomp: {} };
+
+/* ---------------- almacenamiento ---------------- */
+
+/* ---------------- navegación ---------------- */
+
+const VISTAS = ["acta", "identidad", "firmas", "final"];
+function ir(v) {
+  VISTAS.forEach(n => {
+    const el = document.getElementById("v-" + n);
+    if (el) el.classList.toggle("oculto", n !== v);
+  });
+  window.scrollTo(0, 0);
+  if (v === "firmas") setTimeout(prepararPads, 30);
+}
+
+/* ---------------- utilidades ---------------- */
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const plata = n => "$" + Number(n || 0).toLocaleString("es-CL");
+
+function fechaCorta(iso) {
+  if (!iso) return "";
+  const [a, m, d] = iso.split("-");
+  return `${d}.${m}.${a}`;
+}
+function fechaLarga(iso) {
+  if (!iso) return "";
+  const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio",
+                 "agosto","septiembre","octubre","noviembre","diciembre"];
+  const [a, m, d] = iso.split("-");
+  return `${Number(d)} de ${MESES[Number(m) - 1]} de ${a}`;
+}
+function hoyISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/* El link viaja por WhatsApp: mientras más corto, menos se rompe.
+   Se mandan claves de una letra y se omite todo lo que esté vacío. */
+const MAPA_CORTO = {
+  v:"v", depto:"D", garantia:"g", garantiaForma:"gf", garantiaTexto:"gt",
+  garantiaClausula:"gc", abono:"ab", dias:"di", fechaFirma:"ff", fechaInicio:"fi",
+  conBodega:"cb", arr:"A", acomp:"C", corredora:"co",
+  id:"i", corto:"c", dir:"d", arriendo:"a", dias_:"x", habitaciones:"h",
+  balcon:"b", banco:"bk", titular:"t", rut:"r", cuenta:"cu", correo:"e", cel:"m",
+  tieneBodega:"tb", bodegaNum:"bn", edificioId:"ei", num:"n", cuentaId:"ci",
+  nombre:"no", nac:"na", doc:"dc", mail:"ml", rel:"rl"
+};
+const MAPA_LARGO = Object.fromEntries(Object.entries(MAPA_CORTO).map(([k, v]) => [v, k]));
+
+function compactar(o) {
+  if (Array.isArray(o)) return o.map(compactar);
+  if (o && typeof o === "object") {
+    const r = {};
+    for (const k in o) {
+      const val = o[k];
+      if (val === "" || val === null || val === undefined) continue;
+      if (Array.isArray(val) && !val.length) continue;
+      r[MAPA_CORTO[k] || k] = compactar(val);
+    }
+    return r;
+  }
+  return o;
+}
+function expandir(o) {
+  if (Array.isArray(o)) return o.map(expandir);
+  if (o && typeof o === "object") {
+    const r = {};
+    for (const k in o) r[MAPA_LARGO[k] || k] = expandir(o[k]);
+    return r;
+  }
+  return o;
+}
+
+function codificar(obj) {
+  return btoa(unescape(encodeURIComponent(JSON.stringify(obj))))
+    .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function decodificar(txt) {
+  let s = txt.replace(/-/g, "+").replace(/_/g, "/");
+  while (s.length % 4) s += "=";
+  return JSON.parse(decodeURIComponent(escape(atob(s))));
+}
+
+/* huella corta y estable del documento, para el sello de verificación */
+function huella(txt) {
+  let h1 = 0x811c9dc5, h2 = 0x01000193;
+  for (let i = 0; i < txt.length; i++) {
+    const c = txt.charCodeAt(i);
+    h1 = Math.imul(h1 ^ c, 16777619) >>> 0;
+    h2 = Math.imul(h2 + c + i, 2654435761) >>> 0;
+  }
+  const a = h1.toString(16).padStart(8, "0").toUpperCase();
+  const b = h2.toString(16).padStart(8, "0").toUpperCase();
+  return (a + b).match(/.{4}/g).join("-");
+}
+
+/* ---------------- acta ---------------- */
+
+function ambientesDe(depto) {
+  const A = [];
+  A.push({ grupo: "Cocina", items: ["Encimera","Microondas","Horno","Campana","Muebles de cocina",
+    "Tope de cocina","Desayunador","Paredes","Piso","Tomas eléctricas","Lavamanos","Conexión a lavadora","Techo"] });
+  const living = ["Iluminación","Paredes","Piso","Closet","Ventana","Muebles","Tomas eléctricas",
+                  "Cortineros","Rodapies"];
+  if ((depto.balcon || "si") === "si") living.push("Balcón");
+  living.push("Techo");
+  A.push({ grupo: "Living", items: living });
+  for (let i = 1; i <= Number(depto.habitaciones || 0); i++) {
+    A.push({ grupo: "Habitación " + i, items: ["Closet","Paredes","Piso","Iluminación","Ventana",
+      "Tomas eléctricas","Muebles","Cortineros","Techo","Rodapies"] });
+  }
+  A.push({ grupo: "Baño", items: ["Water/WC","Lavamanos","Mueble de baño","Tina","Grifería",
+    "Paredes","Techo","Piso","Iluminación"] });
+  if (datos && datos.conBodega) {
+    A.push({ grupo: "Bodega " + (depto.bodegaNum || ""),
+             items: ["Puerta y cerradura","Paredes","Piso","Techo","Iluminación"] });
+  }
+  return A;
+}
+
+const actaEstado = {};   // "grupo|item" -> {v, obs}
+
+function pintarActa() {
+  const cont = $("lista-acta");
+  cont.innerHTML = ambientesDe(datos.depto).map(g => `
+    <div class="grupo-titulo">${esc(g.grupo)}</div>
+    ${g.items.map(it => {
+      const k = g.grupo + "|" + it;
+      return `<div class="item">
+        <span class="nombre">${esc(it)}</span>
+        <span class="estados">
+          ${["B","R","M"].map(v => `<button type="button" data-v="${v}" aria-pressed="false"
+             onclick="marcar('${esc(k).replace(/'/g,"\\'")}','${v}',this)">${v === "B" ? "Bueno" : v === "R" ? "Regular" : "Malo"}</button>`).join("")}
+        </span>
+        <span class="obs"><input placeholder="Observación (opcional)"
+          oninput="observar('${esc(k).replace(/'/g,"\\'")}', this.value)"></span>
+      </div>`;
+    }).join("")}`).join("");
+}
+
+function marcar(k, v, btn) {
+  actaEstado[k] = actaEstado[k] || { v: "", obs: "" };
+  actaEstado[k].v = actaEstado[k].v === v ? "" : v;
+  const fila = btn.closest(".estados");
+  fila.querySelectorAll("button").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.v === actaEstado[k].v)));
+}
+function observar(k, txt) {
+  actaEstado[k] = actaEstado[k] || { v: "", obs: "" };
+  actaEstado[k].obs = txt;
+}
+
+/* ---------------- fotos ---------------- */
+
+function cargarFoto(input, imgId) {
+  const f = input.files && input.files[0];
+  if (!f) return;
+  achicarImagen(f, 1400, dataUrl => {
+    const img = $(imgId);
+    img.src = dataUrl; img.classList.remove("oculto");
+    if (imgId === "img-doc") fotos.doc = dataUrl;
+    if (imgId === "img-sel") fotos.sel = dataUrl;
+    if (imgId.startsWith("img-ac-")) fotos.acomp[imgId.replace("img-ac-", "")] = dataUrl;
+  });
+}
+
+function achicarImagen(file, maxLado, cb) {
+  const lector = new FileReader();
+  lector.onload = e => {
+    const im = new Image();
+    im.onload = () => {
+      let { width: w, height: h } = im;
+      const f = Math.min(1, maxLado / Math.max(w, h));
+      w = Math.round(w * f); h = Math.round(h * f);
+      const cv = document.createElement("canvas");
+      cv.width = w; cv.height = h;
+      cv.getContext("2d").drawImage(im, 0, 0, w, h);
+      cb(cv.toDataURL("image/jpeg", 0.82));
+    };
+    im.onerror = () => cb(e.target.result);
+    im.src = e.target.result;
+  };
+  lector.readAsDataURL(file);
+}
+
+function pintarDocsAcompanantes() {
+  const cont = $("docs-acomp");
+  if (!datos.acomp || !datos.acomp.length) { cont.innerHTML = ""; return; }
+  cont.innerHTML = `<h2 style="margin-top:.6rem">Documentos de quienes también vivirán ahí</h2>
+    <div class="fotos">` + datos.acomp.map((p, i) => `
+      <div class="foto-caja">
+        <span class="rot">${esc(p.nombre)}</span>
+        <img id="img-ac-${i}" class="oculto" alt="Documento de ${esc(p.nombre)}">
+        <button class="btn-foto" type="button" onclick="document.getElementById('f-ac-${i}').click()">Tomar foto</button>
+        <input type="file" id="f-ac-${i}" accept="image/*" capture="environment"
+               onchange="cargarFoto(this,'img-ac-${i}')">
+      </div>`).join("") + `</div>`;
+}
+
+/* ---------------- firmas ---------------- */
+
+const pads = {};
+
+function prepararPads() {
+  [["arr", "pad-arr"], ["cor", "pad-cor"]].forEach(([clave, id]) => {
+    const cv = $(id);
+    const caja = cv.getBoundingClientRect();
+    if (!caja.width) return;
+
+    const previo = pads[clave];
+    // Cambiar el tamaño del canvas borra el trazo: si ya firmaron, no se toca.
+    if (previo && !previo.vacio) return;
+    if (previo && previo.ancho === Math.round(caja.width)) return;
+
+    const razon = window.devicePixelRatio || 1;
+    cv.width = Math.round(caja.width * razon);
+    cv.height = Math.round(caja.height * razon);
+    const ctx = cv.getContext("2d");
+    ctx.scale(razon, razon);
+    ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.strokeStyle = "#101418";
+
+    pads[clave] = { cv, ctx, trazando: false, vacio: true,
+                    ancho: Math.round(caja.width),
+                    conectado: previo ? previo.conectado : false };
+    if (!pads[clave].conectado) { conectarPad(clave); pads[clave].conectado = true; }
+  });
+}
+
+function conectarPad(clave) {
+  const cv = pads[clave].cv;
+  const pad = () => pads[clave];
+  const punto = ev => {
+    const r = cv.getBoundingClientRect();
+    const t = ev.touches ? ev.touches[0] : ev;
+    return { x: t.clientX - r.left, y: t.clientY - r.top };
+  };
+  const empezar = ev => {
+    ev.preventDefault();
+    const p = pad();
+    p.trazando = true; p.vacio = false;
+    const { x, y } = punto(ev);
+    p.ctx.beginPath(); p.ctx.moveTo(x, y);
+    estadoFirma(clave, "Firmado");
+  };
+  const seguir = ev => {
+    const p = pad();
+    if (!p.trazando) return;
+    ev.preventDefault();
+    const { x, y } = punto(ev);
+    p.ctx.lineTo(x, y); p.ctx.stroke();
+  };
+  const parar = () => { pad().trazando = false; };
+
+  cv.addEventListener("pointerdown", empezar);
+  cv.addEventListener("pointermove", seguir);
+  window.addEventListener("pointerup", parar);
+  cv.addEventListener("touchstart", empezar, { passive: false });
+  cv.addEventListener("touchmove", seguir, { passive: false });
+  cv.addEventListener("touchend", parar);
+}
+
+function estadoFirma(clave, txt) {
+  $(clave === "arr" ? "est-arr" : "est-cor").textContent = txt;
+}
+function borrarPad(clave) {
+  const p = pads[clave]; if (!p) return;
+  p.ctx.clearRect(0, 0, p.cv.width, p.cv.height);
+  p.vacio = true; estadoFirma(clave, "Sin firmar");
+}
+function firmaComoImagen(clave) {
+  const p = pads[clave];
+  if (!p || p.vacio) return null;
+  return p.cv.toDataURL("image/png");
+}
+
+/* Dibuja el QR como SVG, en un solo trazo: así se ve nítido impreso y
+   pesa poco dentro del PDF. */
+function qrSVG(texto, lado) {
+  const m = QR.generar(texto);
+  if (!m) return "";
+  const n = m.length, borde = 4, total = n + borde * 2;
+  let d = "";
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++)
+    if (m[y][x]) d += `M${x + borde} ${y + borde}h1v1h-1z`;
+  /* crispEdges evita que el navegador suavice los bordes: sin eso los
+     cuadraditos quedan borrosos y la cámara no los distingue. */
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}"
+    width="${lado}" height="${lado}" role="img" aria-label="Código QR del contrato"
+    shape-rendering="crispEdges"
+    style="display:block;background:#fff;border-radius:3px">
+    <rect width="${total}" height="${total}" fill="#fff"/>
+    <path d="${d}" fill="#000"/></svg>`;
+}
+
+/* ---------------- contrato final ---------------- */
+
+function clausulas(d) {
+  const A = plata(d.arriendo);
+  const G = plata(datos.garantia != null ? datos.garantia : d.garantia);
+  return [
+    { s: "I · Precio, forma de pago y servicios", c: [
+      `El precio de arriendo corresponde a la suma de <span class="v">${A}</span>, pago que debe ser cancelado un mes por adelantado, desde el día <span class="v">${esc(datos.dias || d.dias || "")}</span> de cada mes, por transferencia electrónica de fondos o depósito en la cuenta corriente del banco indicado.`,
+      `Se recibe el pago del primer mes de arriendo: <span class="v">${A}</span> al contado.`,
+      `Es obligación enviar mensualmente todas las boletas escaneadas o una fotografía por mail o WhatsApp acreditando de esta manera el efectivo pago al día de los Servicios: Retiro de Basura/Aseo Domiciliario, Electricidad, Agua, Gas y Gastos Comunes del Edificio. Adicionalmente enviar el comprobante por mail o WhatsApp que en estricto rigor acredite el efectivo depósito bancario/transferencia bancaria, respecto del oportuno pago del mes de arriendo como así mismo la totalidad de los servicios indicados.`,
+      `Se deben enviar los comprobantes de pago de los servicios mensualmente, por mail y WhatsApp.`,
+      `Es responsabilidad de la parte arrendataria cumplir con el pago oportuno todos los meses, sin acumular deudas por más de un mes consecutivo, caso contrario caerá automáticamente en la categoría de arrendatario moroso, en lo que respecta al servicio de retiro de Basura del Edificio, por parte del personal de la Municipalidad, Servicio de Electricidad, Suministro de Agua Potable (Fría y Caliente), Gas, Gastos Comunes del Edificio y Mensualidad de Arriendo. El retraso en el pago oportuno de cualquiera de los servicios y/o gastos mencionados, generará descontar la garantía a manera de penalización, lo cual origina la restitución inmediata del inmueble, por Incumplimiento Grave del Contrato de Arriendo.`,
+      `El retraso en el pago oportuno del mes de arriendo o de algún servicio (retiro de basura, energía eléctrica, agua potable, gas, gasto común, internet) generará descontar la garantía a manera de penalización, lo cual origina la restitución inmediata del inmueble por: Incumplimiento Grave del Contrato de Arriendo.`
+    ]},
+    { s: "II · Plazo, garantía y término del contrato", c: [
+      `El contrato de arriendo es anual, pudiendo ser renovado automáticamente por el mismo período. Si la parte arrendataria decide poner fin a su permanencia en la propiedad por la causal que sea antes del plazo acordado, la parte arrendadora conservará a manera de penalización el 50% de la garantía. Para todos los efectos, la garantía se devolverá transcurridos 60 días desde la entrega material de la propiedad, considerando el desfase normal en la recepción de las boletas y facturas de cobros en relación con todos los servicios domésticos pendientes de pago, así como los gastos que eventualmente se requieran realizar en la propiedad para dejarla en las mismas condiciones en que se encontró el departamento al momento de iniciar el arriendo.`,
+      `Se recibe una garantía equivalente a <span class="v">${G}</span> <span class="v">${esc(datos.garantiaClausula || "al contado")}</span>.`,
+      `Queda estrictamente prohibido utilizar la garantía para pagar el arriendo, servicios, arreglos o cualquier gasto que se requiera realizar antes de la entrega de la propiedad.`,
+      `La parte arrendataria debe informar con al menos 60 días de anticipación la entrega material de la propiedad, en caso contrario, el propietario descontará <span class="v">${A}</span> haya o no transcurrido el plazo del contrato de arriendo.`
+    ]},
+    { s: "III · Uso de la propiedad y quiénes pueden vivir en ella", c: [
+      `Queda estrictamente prohibido utilizar la propiedad para ejecutar cualquier tipo de actividad comercial, excepto previa autorización escrita de la parte arrendadora del inmueble, de lo contrario se genera un incumplimiento Grave al Contrato de Arriendo.`,
+      `Queda estrictamente prohibido subarrendar el departamento o facilitar la permanencia en la propiedad a terceros no registrados como arrendatarios, sin previa autorización del propietario por escrito, después de la eventual autorización, el arrendatario debe individualizar a la/s persona/s con nombre completo, enviar fotografía del carnet de identidad y pasaporte de la persona, indicando número de teléfono, correo electrónico, profesión, ocupación y lugar de trabajo, para poder ser debidamente registrado.`,
+      `Se prohíbe ceder el inmueble a otra/s persona/s diferentes a los firmantes de este contrato.`,
+      `Deben enviar documento/pasaporte/carnet de todas las personas que vivirán en la propiedad.`,
+      `__TABLA_RESIDENTES__`,
+      `Queda prohibido efectuar obra alguna en la propiedad que signifique modificar su actual estructura, excepto autorización escrita de la parte arrendadora, sin perjuicio de lo anterior, todas las mejoras o modificaciones autorizadas por escrito, no obligan al propietario a descontar o devolver el dinero que esas modificaciones originaron.`
+    ]},
+    { s: "IV · Estado, cuidado y mantención", c: [
+      `La parte arrendataria recibe el inmueble en perfecto estado de conservación, y se obliga a restituir el inmueble en las mismas excelentes condiciones en las que le fue entregado, siendo de su cargo los arreglos de pintura, aseo y mantenciones generales para volver a su estado inicial. Queda prohibido utilizar la garantía del arriendo para estos fines de mantención.`,
+      `El arrendatario tiene un plazo de 24 horas para reportar cualquier daño y/o desperfecto del departamento o de cualquiera de sus artefactos.`,
+      `El arrendatario es responsable de realizar las mantenciones necesarias a su propio costo de termoeléctrico (cada 6 meses)/calefón / calentador, encimera eléctrica/estufa, griferías, breaker/disyuntor, etc. para asegurar la operatividad de los mismos.`,
+      `Los gastos que se produzcan por reparaciones/renovaciones de desperfectos en la propiedad arrendada o en la propiedad/es de terceros ocasionados por el uso normal o por el hecho, culpa de los residentes de la propiedad o de terceros, serán de cargo de la parte arrendataria.`,
+      `En caso de existir algún problema o inconveniente de cualquier tipo en el departamento que involucre, por ejemplo: cocina – encimera eléctrica, termo eléctrico, calefón, baño, horno eléctrico, puertas, lámparas, etc. Es obligación del arrendatario dar aviso inmediatamente, para efectos de adoptar las medidas necesarias, en orden a efectuar las reparaciones por parte de personal autorizado y de confianza de la empresa, con el fin de solucionar inconveniente y evitar problemas mayores producto de eventuales negligencias respecto a la intervención de terceras personas, distintas de las ya acreditadas y aprobadas por nuestra empresa.`,
+      `El propietario puede inspeccionar la propiedad cuando lo estime conveniente, comprometiéndose la parte arrendataria a otorgarle las facilidades necesarias.`
+    ]},
+    { s: "V · Comunicaciones", c: [
+      `Se debe informar de cualquier problema que se produzca en el departamento, por mail y WhatsApp`,
+      `Por mail y WhatsApp se debe informar inmediatamente cualquier cambio de teléfono y/o mail, a fin de facilitar de manera expedita la comunicación directa con la parte arrendataria.`
+    ]},
+    { s: "VI · Entrega de la propiedad al término del arriendo", c: [
+      `La parte arrendataria se compromete las últimas semanas de su permanencia en la propiedad, a otorgar todas las facilidades necesarias para permitir que potenciales interesados en arrendar, puedan efectivamente conocer el departamento.`,
+      `El arrendatario debe obligatoriamente dejar abonado los gastos comunes, servicios de luz, agua, gas y aseo domiciliario consumidos/utilizados hasta la fecha de la entrega de la propiedad como requisito para entregar la propiedad y recibir su correspondiente autorización de salida.`,
+      `Se debe dejar abonado el último mes inmediatamente anterior al mes de la salida los servicios o bien el proporcional de los días utilizados en el arriendo aunque no se haya recibido la boleta del servicio con el respectivo cobro considerando que existe un desfase normal en la llegada de las boletas y las fechas de pago. Además considerando que si la parte arrendataria se retira en cualquier momento es del todo evidente que van a seguir llegando cobros de servicios una vez ejecutada la salida del arrendatario del departamento.`
+    ]},
+    { s: "VII · Incumplimiento", c: [
+      `El incumplimiento o retardo de todas o de cualquiera de las obligaciones que la parte arrendataria contrae por este instrumento, dará derecho a la parte arrendadora para automáticamente poner fin al Contrato de Arriendo, así como descontar la garantía a manera de penalización, además de los Derechos inherentes a ejecutar todas las Acciones Policiales y Judiciales que correspondan, incluido necesariamente el desalojo forzado de la propiedad.`
+    ]}
+  ];
+}
+
+function tablaResidentes() {
+  const filas = (datos.acomp && datos.acomp.length)
+    ? datos.acomp.map(p => `<tr><td>${esc(p.nombre)}</td><td>${esc(p.doc)}</td><td>${esc(p.nac)}</td><td>${esc(p.cel)}</td><td>${esc(p.rel)}</td></tr>`).join("")
+    : `<tr><td colspan="5" style="color:var(--muted)">Sin otras personas registradas</td></tr>`;
+  return `Toda persona que quiera residir en la propiedad en una fecha posterior a la de este contrato, debe ser debidamente informada al arrendador para su autorización por escrito, previa entrega de toda la documentación correspondiente. Datos de las personas que residirán en el departamento y que no son cabeza de arriendo:
+    <div class="tabla-scroll" style="margin-top:.6rem">
+      <table><thead><tr><th>Nombre Completo</th><th>Documento</th><th>Nacionalidad</th><th>Celular</th><th>Relación</th></tr></thead>
+      <tbody>${filas}</tbody></table>
+    </div>`;
+}
+
+function tablaActa() {
+  return ambientesDe(datos.depto).map(g => `
+    <tr><td colspan="5" style="background:var(--accent-bg);color:var(--accent);font-weight:700;text-align:center;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase">${esc(g.grupo)}</td></tr>
+    ${g.items.map(it => {
+      const e = actaEstado[g.grupo + "|" + it] || { v: "", obs: "" };
+      return `<tr><td>${esc(it)}</td>
+        <td class="centro">${e.v === "B" ? "✓" : ""}</td>
+        <td class="centro">${e.v === "R" ? "✓" : ""}</td>
+        <td class="centro">${e.v === "M" ? "✓" : ""}</td>
+        <td>${esc(e.obs)}</td></tr>`;
+    }).join("")}`).join("");
+}
+
+/* Recuadro con la cuenta de lo pagado. Deja por escrito que el abono de reserva
+   se descontó: sin esto, el cliente no tiene constancia de que su plata se aplicó. */
+function cuentaDePagos(d) {
+  const gar = datos.garantia != null ? datos.garantia : d.garantia;
+  const abono = datos.abono || 0;
+  const total = gar + d.arriendo;
+  const filas = [
+    ["Garantía", gar],
+    ["Primer mes de arriendo", d.arriendo],
+    ["Total", total]
+  ];
+  if (abono) {
+    filas.push(["Abono de reserva recibido antes de esta fecha", -abono]);
+    filas.push(["Pagado en esta entrega", total - abono]);
+  }
+  const bodega = datos.conBodega
+    ? `<p style="font-family:var(--sans);font-size:.85rem;margin-top:.5rem">Incluye la bodega ${esc(d.bodegaNum || "")}.</p>`
+    : (d.tieneBodega ? `<p style="font-family:var(--sans);font-size:.85rem;margin-top:.5rem">Se arrienda <strong>sin</strong> la bodega.</p>` : "");
+  const cuotas = (datos.garantiaForma && datos.garantiaForma !== "contado")
+    ? `<p style="font-family:var(--sans);font-size:.85rem;margin-top:.5rem">
+         La garantía se paga <strong>${esc(datos.garantiaTexto || "según lo acordado")}</strong>.</p>` : "";
+
+  return `<section>
+    <h2>Cuenta de lo pagado</h2>
+    <div class="tabla-scroll">
+      <table><tbody>${filas.map(([t, v]) => `
+        <tr><th style="width:60%">${esc(t)}</th>
+        <td style="text-align:right;font-variant-numeric:tabular-nums">${v < 0 ? "−" + plata(-v) : plata(v)}</td></tr>`).join("")}
+      </tbody></table>
+    </div>
+    ${cuotas}${bodega}
+  </section>`;
+}
+
+function generarContrato() {
+  const fArr = firmaComoImagen("arr"), fCor = firmaComoImagen("cor");
+  if (!fArr || !fCor) {
+    const f = $("falta-firma");
+    f.textContent = !fArr && !fCor ? "Faltan las dos firmas."
+      : !fArr ? "Falta la firma del arrendatario." : "Falta la firma de la corredora.";
+    f.classList.remove("oculto");
+    return;
+  }
+  $("falta-firma").classList.add("oculto");
+
+  const d = datos.depto, a = datos.arr;
+  const secciones = clausulas(d);
+  let n = 0;
+  const cuerpo = secciones.map(sec => `
+    <section>
+      <h2>${esc(sec.s)}</h2>
+      <ol>${sec.c.map(txt => {
+        n++;
+        const contenido = txt === "__TABLA_RESIDENTES__" ? tablaResidentes() : txt;
+        return `<li><span class="n">${n}.</span><div>${contenido}</div></li>`;
+      }).join("")}</ol>
+    </section>`).join("");
+
+  const sello = huella(JSON.stringify({
+    depto: d.dir, arr: a, f: datos.fechaFirma, i: datos.fechaInicio,
+    cor: datos.corredora, acta: actaEstado, notas: $("a-notas").value
+  }));
+
+  const marca = new Date();
+  const cuandoTxt = marca.toLocaleString("es-CL", { dateStyle: "long", timeStyle: "short" });
+
+  const fotoDoc = fotos.doc ? `<img src="${fotos.doc}" alt="Documento del arrendatario" style="max-width:100%;border-radius:5px">` : `<span style="color:var(--muted);font-size:.85rem">Sin foto</span>`;
+  const fotoSel = fotos.sel ? `<img src="${fotos.sel}" alt="Arrendatario con su documento" style="max-width:100%;border-radius:5px">` : `<span style="color:var(--muted);font-size:.85rem">Sin foto</span>`;
+
+  const docsAcomp = (datos.acomp || []).map((p, i) => fotos.acomp[i]
+    ? `<div class="foto-caja"><span class="rot">${esc(p.nombre)}</span><img src="${fotos.acomp[i]}" alt="Documento de ${esc(p.nombre)}"></div>` : "").join("");
+
+  $("doc-final").innerHTML = `
+    <header>
+      <span class="t">Contrato de Arriendo</span>
+      <span class="s2">Obligaciones Reglamentarias</span>
+      <span class="s">${esc(d.dir)}</span>
+      ${datos.conBodega ? `<span class="s">Incluye bodega ${esc(d.bodegaNum || "")}</span>` : ""}
+      <span class="s">Firmado el ${esc(fechaCorta(datos.fechaFirma))}</span>
+    </header>
+
+    ${cuerpo}
+
+    ${cuentaDePagos(d)}
+
+    <section>
+      <h2>Datos para pago del arriendo</h2>
+      <div style="font-family:var(--sans);font-size:.88rem;display:flex;flex-direction:column;gap:.15rem">
+        <span>${esc(d.banco)}</span><span>${esc(d.titular)}</span>
+        <span>Rut: ${esc(d.rut)}</span><span>${esc(d.tipoCuenta || "Cuenta corriente")}: ${esc(d.cuenta)}</span>
+        <span>Correo electrónico: ${esc(d.correo)}</span><span>Celular/WhatsApp: ${esc(d.cel)}</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Firmas</h2>
+      <div class="firmas-final">
+        <div class="firma-final">
+          <span class="rol">Arrendatario</span>
+          <span>Fecha: ${esc(fechaCorta(datos.fechaInicio))}</span>
+          <span>Teléfono celular: ${esc(a.cel)}</span>
+          <span>Nombre completo: ${esc(a.nombre)}</span>
+          <span>Nacionalidad: ${esc(a.nac)}. Documento: ${esc(a.doc)}</span>
+          <img src="${fArr}" alt="Firma del arrendatario">
+          <span class="pie-f">Firma</span>
+        </div>
+        <div class="firma-final">
+          <span class="rol">Corredora de propiedades</span>
+          <span>Fecha: ${esc(fechaCorta(datos.fechaFirma))}</span>
+          <span>Nombre completo: ${esc(datos.corredora)}</span>
+          <span>&nbsp;</span><span>&nbsp;</span>
+          <img src="${fCor}" alt="Firma de la corredora">
+          <span class="pie-f">Firma</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Verificación de identidad del arrendatario</h2>
+      <div class="fotos">
+        <div class="foto-caja"><span class="rot">1 · Documento del arrendatario</span>${fotoDoc}</div>
+        <div class="foto-caja"><span class="rot">El arrendatario con su documento</span>${fotoSel}</div>
+      </div>
+      ${docsAcomp ? `<div class="fotos" style="margin-top:.8rem">${docsAcomp}</div>` : ""}
+    </section>
+
+    <section>
+      <h2>Anexo del contrato · Acta de inspección de entrega</h2>
+      <div class="tabla-scroll">
+        <table><tbody>
+          <tr><th style="width:45%">Unidad</th><td>${esc(d.dir)}</td></tr>
+          <tr><th>Fecha</th><td>${esc(fechaCorta(datos.fechaFirma))}</td></tr>
+          <tr><th>Número de llaves a entregar</th><td>${esc($("a-llaves").value)}</td></tr>
+          <tr><th>Número de ampolletas</th><td>${esc($("a-ampolletas").value)}</td></tr>
+          <tr><th>Lámparas</th><td>${esc($("a-lamparas").value)}</td></tr>
+        </tbody></table>
+      </div>
+      <div class="tabla-scroll">
+        <table>
+          <thead><tr><th>Objeto</th><th>Bueno</th><th>Regular</th><th>Malo</th><th>Observaciones</th></tr></thead>
+          <tbody>${tablaActa()}</tbody>
+        </table>
+      </div>
+      <div style="border:1px solid var(--rule);border-radius:7px;padding:.9rem;font-family:var(--sans);font-size:.9rem">
+        <strong style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)">Notas adicionales</strong>
+        <p style="margin-top:.4rem;white-space:pre-wrap">${esc($("a-notas").value) || "—"}</p>
+      </div>
+      <div class="firmas-final">
+        <div class="firma-final">
+          <span class="rol">Arrendatario</span>
+          <span>${esc(a.nombre)}</span>
+          <img src="${fArr}" alt="Firma del arrendatario">
+          <span class="pie-f">Firma</span>
+        </div>
+        <div class="firma-final">
+          <span class="rol">Corredora de propiedades</span>
+          <span>${esc(datos.corredora)}</span>
+          <img src="${fCor}" alt="Firma de la corredora">
+          <span class="pie-f">Firma</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="sello" style="flex-direction:row;align-items:center;gap:1.2rem;flex-wrap:wrap">
+      <div style="flex:0 0 auto">${qrSVG(
+        `Contrato de Arriendo · ${d.corto || d.dir} · ${a.nombre} · `
+        + `${fechaCorta(datos.fechaFirma)} · ${sello}`, 230)}</div>
+      <div style="display:flex;flex-direction:column;gap:.2rem">
+        <span>Documento firmado electrónicamente el <strong>${esc(cuandoTxt)}</strong>,
+          conforme a la Ley 19.799 sobre firma electrónica.</span>
+        <span>Código de verificación:</span>
+        <span class="cod">${esc(sello)}</span>
+        <span>Al escanear el código aparecen los datos de este documento. Si el
+          contrato cambiara, el código deja de coincidir.</span>
+      </div>
+    </div>`;
+
+  ir("final");
+}
+
+/* ---------------- arranque ---------------- */
+
+/* El contrato puede llegar de tres formas, porque los links largos a veces se
+   rompen en el camino: en el # del link, en el ?c= , o pegado a mano. */
+function sacarCodigo() {
+  const hash = location.hash || "";
+  if (hash.startsWith("#c=")) return hash.slice(3);
+  const q = new URLSearchParams(location.search || "");
+  if (q.get("c")) return q.get("c");
+  return "";
+}
+
+function abrirContrato(codigo) {
+  try {
+    datos = expandir(decodificar(codigo.trim()));
+  } catch (e) {
+    return false;
+  }
+  if (!datos || !datos.depto || !datos.arr) return false;
+  $("chip-depto").textContent = datos.depto.corto || "";
+  $("acta-dir").textContent = datos.depto.dir;
+  $("acta-quien").textContent = `Entrega a ${datos.arr.nombre} · ${datos.corredora}`;
+  $("rot-firma-arr").textContent = "Firma de " + datos.arr.nombre;
+  $("rot-firma-cor").textContent = "Firma de " + datos.corredora;
+  pintarActa();
+  pintarDocsAcompanantes();
+  ir("acta");
+  return true;
+}
+
+function pegarLink() {
+  let v = $("pegar").value.trim();
+  // puede venir el código solo, dentro de un link, o pegado con todo el mensaje
+  if (v.includes("#c=")) v = v.split("#c=")[1];
+  else if (v.includes("?c=")) v = v.split("?c=")[1].split("&")[0];
+  // quedarse con el trozo largo de letras y números, que es el código
+  const trozos = v.split(/\s+/).filter(x => x.length > 40 && /^[A-Za-z0-9_-]+$/.test(x));
+  const cod = trozos.length ? trozos[trozos.length - 1] : v.replace(/\s+/g, "");
+  if (!cod) { $("error-pegar").textContent = "Pega el link completo primero."; return; }
+  if (!abrirContrato(cod)) {
+    $("error-pegar").textContent =
+      "Ese código no se pudo leer. Suele estar cortado: cópialo de nuevo completo "
+      + "desde WhatsApp, o pide que te lo manden de nuevo.";
+  }
+}
+
+function arrancar() {
+  const cod = sacarCodigo();
+  if (cod && abrirContrato(cod)) return;
+
+  document.querySelector(".wrap").innerHTML =
+    `<div class="barra"><span class="marca">Contrato de Arriendo</span></div>
+     <div class="aviso">
+       <p><strong>Pega acá el código del contrato.</strong></p>
+       <p>Viene en el mismo mensaje de WhatsApp en que te llegó este link, justo debajo. Es un texto
+          largo de letras y números.</p>
+     </div>
+     <div class="tarjeta">
+       <h3>El código del contrato</h3>
+       <p style="font-size:.86rem;color:var(--muted);margin:0">
+         En WhatsApp, mantén el dedo apretado sobre el mensaje, elige
+         <strong>Copiar</strong>, y pégalo acá abajo. Si copias de más no importa:
+         igual funciona.</p>
+       <textarea id="pegar" placeholder="Pega acá el código…" style="min-height:7rem;
+         font-family:ui-monospace,Menlo,monospace;font-size:.78rem"></textarea>
+       <p id="error-pegar" style="font-size:.86rem;color:var(--bad);margin:0"></p>
+       <button class="primario grande" onclick="pegarLink()">Abrir el contrato</button>
+     </div>`;
+}
+
+window.addEventListener("resize", () => {
+  const v = document.getElementById("v-firmas");
+  if (v && !v.classList.contains("oculto")) prepararPads();
+});
+
+arrancar();
+</script>
