@@ -182,6 +182,27 @@
 
 <div class="wrap">
 
+  <!-- ============ PEGAR EL CÓDIGO ============ -->
+  <div id="v-pegar" class="paso oculto">
+    <div class="barra"><span class="marca">Contrato de Arriendo</span></div>
+    <div class="aviso">
+      <p><strong>Pega acá el código del contrato.</strong></p>
+      <p>Viene en el mismo mensaje de WhatsApp en que te llegó este link, justo
+         debajo. Es un texto largo de letras y números.</p>
+    </div>
+    <div class="tarjeta">
+      <h3>El código del contrato</h3>
+      <p style="font-size:.86rem;color:var(--muted);margin:0">
+        En WhatsApp, mantén el dedo apretado sobre el mensaje, elige
+        <strong>Copiar</strong>, y pégalo acá abajo. Si copias de más no importa:
+        igual funciona.</p>
+      <textarea id="pegar" placeholder="Pega acá el código…" style="min-height:7rem;
+        font-family:ui-monospace,Menlo,monospace;font-size:.78rem"></textarea>
+      <p id="error-pegar" style="font-size:.86rem;color:var(--bad);margin:0"></p>
+      <button class="primario grande" onclick="pegarLink()">Abrir el contrato</button>
+    </div>
+  </div>
+
   <!-- ============ FIRMAR: ACTA ============ -->
   <div id="v-acta" class="paso oculto">
     <div class="barra">
@@ -605,7 +626,7 @@ const fotos = { doc: null, sel: null, acomp: {} };
 
 /* ---------------- navegación ---------------- */
 
-const VISTAS = ["acta", "identidad", "firmas", "final"];
+const VISTAS = ["pegar", "acta", "identidad", "firmas", "final"];
 function ir(v) {
   VISTAS.forEach(n => {
     const el = document.getElementById("v-" + n);
@@ -1224,25 +1245,11 @@ function pegarLink() {
 function arrancar() {
   const cod = sacarCodigo();
   if (cod && abrirContrato(cod)) return;
-
-  document.querySelector(".wrap").innerHTML =
-    `<div class="barra"><span class="marca">Contrato de Arriendo</span></div>
-     <div class="aviso">
-       <p><strong>Pega acá el código del contrato.</strong></p>
-       <p>Viene en el mismo mensaje de WhatsApp en que te llegó este link, justo debajo. Es un texto
-          largo de letras y números.</p>
-     </div>
-     <div class="tarjeta">
-       <h3>El código del contrato</h3>
-       <p style="font-size:.86rem;color:var(--muted);margin:0">
-         En WhatsApp, mantén el dedo apretado sobre el mensaje, elige
-         <strong>Copiar</strong>, y pégalo acá abajo. Si copias de más no importa:
-         igual funciona.</p>
-       <textarea id="pegar" placeholder="Pega acá el código…" style="min-height:7rem;
-         font-family:ui-monospace,Menlo,monospace;font-size:.78rem"></textarea>
-       <p id="error-pegar" style="font-size:.86rem;color:var(--bad);margin:0"></p>
-       <button class="primario grande" onclick="pegarLink()">Abrir el contrato</button>
-     </div>`;
+  /* Antes acá se reemplazaba el contenido entero de .wrap por el recuadro de
+     pegar. Eso borraba el acta, las firmas y todo lo demás, así que al pegar el
+     código después el contrato no tenía dónde escribirse y la página reventaba.
+     Ahora la pantalla de pegar es una vista más y no destruye nada. */
+  ir("pegar");
 }
 
 window.addEventListener("resize", () => {
