@@ -1196,19 +1196,29 @@ function abrirContrato(codigo) {
 }
 
 function pegarLink() {
-  let v = $("pegar").value.trim();
-  // puede venir el código solo, dentro de un link, o pegado con todo el mensaje
-  if (v.includes("#c=")) v = v.split("#c=")[1];
-  else if (v.includes("?c=")) v = v.split("?c=")[1].split("&")[0];
-  // quedarse con el trozo largo de letras y números, que es el código
-  const trozos = v.split(/\s+/).filter(x => x.length > 40 && /^[A-Za-z0-9_-]+$/.test(x));
-  const cod = trozos.length ? trozos[trozos.length - 1] : v.replace(/\s+/g, "");
-  if (!cod) { $("error-pegar").textContent = "Pega el link completo primero."; return; }
-  if (!abrirContrato(cod)) {
-    $("error-pegar").textContent =
-      "Ese código no se pudo leer. Suele estar cortado: cópialo de nuevo completo "
-      + "desde WhatsApp, o pide que te lo manden de nuevo.";
+  const v = $("pegar").value;
+  if (!v.trim()) { $("error-pegar").textContent = "Pega el código primero."; return; }
+
+  /* El código puede llegar de muchas formas: solo, dentro del link, con todo el
+     mensaje de WhatsApp alrededor, o partido en varias líneas —WhatsApp corta
+     los textos largos y al copiarlos vienen con saltos—. Se prueban todas. */
+  const sinLink = v.replace(/https?:\/\/\S+/g, " ");
+  const trozos = sinLink.split(/\s+/).filter(x => /^[A-Za-z0-9_-]{20,}$/.test(x));
+
+  const intentos = [];
+  if (v.includes("#c=")) intentos.push(v.split("#c=")[1].split(/\s/)[0]);
+  if (v.includes("?c=")) intentos.push(v.split("?c=")[1].split(/[&\s]/)[0]);
+  if (trozos.length) intentos.push(trozos.join(""));      // pegado en varias líneas
+  intentos.push(sinLink.replace(/\s+/g, ""));            // todo junto, sin espacios
+  trozos.forEach(t => intentos.push(t));                  // cada trozo por separado
+
+  for (const cod of intentos) {
+    if (cod && abrirContrato(cod)) return;
   }
+  $("error-pegar").textContent =
+    "Ese código no se pudo leer. Suele estar incompleto: cópialo de nuevo desde "
+    + "WhatsApp manteniendo el dedo apretado sobre el mensaje y eligiendo Copiar. "
+    + "Si sigue sin funcionar, pide que te lo manden otra vez.";
 }
 
 function arrancar() {
