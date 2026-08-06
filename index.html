@@ -1,3 +1,12 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1B4A36">
+<meta name="robots" content="noindex, nofollow">
+</head>
+<body>
 <title>Firmar el contrato de arriendo</title>
 
 <style>
@@ -707,6 +716,35 @@ function decodificar(txt) {
   return JSON.parse(decodeURIComponent(escape(atob(s))));
 }
 
+/* El texto que va dentro del QR. Caben 104 bytes y nada más: es la versión 6,
+   el techo de este generador. Así que se arma de mayor a menor importancia y
+   se van soltando piezas hasta que entre. El contrato completo no cabe —son
+   más de 800 caracteres— y un QR de ese tamaño no lo lee ninguna cámara. */
+function textoSello(d, a, sello) {
+  const lugar  = d.corto || d.dir;
+  const cuando = fechaCorta(datos.fechaFirma);
+  const monto  = plata(d.arriendo);
+  const nombre = a.nombre;
+  const cabe = t => new TextEncoder().encode(t).length <= 104;
+
+  const opciones = [
+    `Contrato de Arriendo · ${lugar} · ${nombre} · ${cuando} · ${monto} · ${sello}`,
+    `Contrato · ${lugar} · ${nombre} · ${cuando} · ${monto} · ${sello}`,
+    `Contrato · ${lugar} · ${acortarNombre(nombre)} · ${cuando} · ${monto} · ${sello}`,
+    `Contrato · ${lugar} · ${acortarNombre(nombre)} · ${cuando} · ${sello}`,
+    `Contrato · ${lugar} · ${cuando} · ${sello}`,
+  ];
+  for (const t of opciones) if (cabe(t)) return t;
+  return `Contrato · ${lugar} · ${sello}`;
+}
+
+/* «Ana Isabel López Soto» → «Ana López S.» */
+function acortarNombre(n) {
+  const p = n.trim().split(/\s+/);
+  if (p.length <= 2) return n;
+  return p[0] + " " + p[p.length - 2] + " " + p[p.length - 1][0] + ".";
+}
+
 /* huella corta y estable del documento, para el sello de verificación */
 function huella(txt) {
   let h1 = 0x811c9dc5, h2 = 0x01000193;
@@ -1170,16 +1208,16 @@ function generarContrato() {
     </section>
 
     <div class="sello" style="flex-direction:row;align-items:center;gap:1.2rem;flex-wrap:wrap">
-      <div style="flex:0 0 auto">${qrSVG(
-        `Contrato de Arriendo · ${d.corto || d.dir} · ${a.nombre} · `
-        + `${fechaCorta(datos.fechaFirma)} · ${sello}`, 230)}</div>
+      <div style="flex:0 0 auto">${qrSVG(textoSello(d, a, sello), 230)}</div>
       <div style="display:flex;flex-direction:column;gap:.2rem">
         <span>Documento firmado electrónicamente el <strong>${esc(cuandoTxt)}</strong>,
           conforme a la Ley 19.799 sobre firma electrónica.</span>
         <span>Código de verificación:</span>
         <span class="cod">${esc(sello)}</span>
-        <span>Al escanear el código aparecen los datos de este documento. Si el
-          contrato cambiara, el código deja de coincidir.</span>
+        <span>Al escanear el código aparecen los datos de este contrato: el
+          departamento, quién firma, la fecha, el arriendo y este mismo código.
+          Sirve para comprobar que el documento que se tiene en la mano es el
+          que se firmó: si algo cambiara, el código deja de coincidir.</span>
       </div>
     </div>`;
 
@@ -1259,3 +1297,5 @@ window.addEventListener("resize", () => {
 
 arrancar();
 </script>
+</body>
+</html>
