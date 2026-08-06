@@ -385,12 +385,14 @@ const QR = (function () {
     return out;
   }
 
-  /* Solo hasta la versión 7: de la 8 en adelante los datos se reparten en dos
-     grupos de bloques de distinto largo, y esa parte no está verificada contra
-     el estándar. Con 7 alcanzan 122 caracteres, de sobra para el sello. */
+  /* Solo hasta la versión 6. De la 7 en adelante el estándar exige un bloque
+     de información de versión que esta implementación no escribe, y sin él los
+     lectores no reconocen el código. Comprobado con un escáner real. */
   function versionPara(nBytes) {
-    for (let v = 1; v <= 7; v++) {
-      const capacidad = INFO[v][0] - 2 - (v >= 10 ? 1 : 0); // 4 bits modo + 8/16 bits largo
+    for (let v = 1; v <= 6; v++) {
+      // se descuentan la declaración de alfabeto (12 bits), el modo (4)
+      // y la cuenta de caracteres (8 o 16)
+      const capacidad = INFO[v][0] - 4 - (v >= 10 ? 1 : 0);
       if (nBytes <= capacidad) return v;
     }
     return 0;
@@ -399,6 +401,10 @@ const QR = (function () {
   function bitsDatos(bytes, version) {
     const bits = [];
     const push = (val, n) => { for (let i = n - 1; i >= 0; i--) bits.push((val >> i) & 1); };
+    // Sin esto el lector supone alfabeto latino-1 y las tildes y la · salen
+    // convertidas en basura. El 26 significa «esto viene en UTF-8».
+    push(0b0111, 4);                          // hay declaración de alfabeto
+    push(26, 8);                              // 26 = UTF-8
     push(0b0100, 4);                          // modo byte
     push(bytes.length, version < 10 ? 8 : 16);
     bytes.forEach(b => push(b, 8));
@@ -873,23 +879,35 @@ function firmaComoImagen(clave) {
   return p.cv.toDataURL("image/png");
 }
 
-/* Dibuja el QR como SVG, en un solo trazo: así se ve nítido impreso y
-   pesa poco dentro del PDF. */
+/* El QR se dibuja como imagen de píxeles, no como vector: así cada cuadradito
+   ocupa un número entero de píxeles y no quedan hilos blancos entre ellos, que
+   es lo que impide que la cámara lo lea. */
 function qrSVG(texto, lado) {
-  const m = QR.generar(texto);
+  let m = QR.generar(texto);
+  // si no cabe, se recorta por el medio: lo importante es el principio
+  // (qué documento es) y el final (el código de verificación)
+  while (!m && texto.length > 40) {
+    const mitad = Math.floor(texto.length / 2);
+    texto = texto.slice(0, mitad - 6) + "… " + texto.slice(mitad + 6);
+    m = QR.generar(texto);
+  }
   if (!m) return "";
-  const n = m.length, borde = 4, total = n + borde * 2;
-  let d = "";
-  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++)
-    if (m[y][x]) d += `M${x + borde} ${y + borde}h1v1h-1z`;
-  /* crispEdges evita que el navegador suavice los bordes: sin eso los
-     cuadraditos quedan borrosos y la cámara no los distingue. */
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}"
-    width="${lado}" height="${lado}" role="img" aria-label="Código QR del contrato"
-    shape-rendering="crispEdges"
-    style="display:block;background:#fff;border-radius:3px">
-    <rect width="${total}" height="${total}" fill="#fff"/>
-    <path d="${d}" fill="#000"/></svg>`;
+  const n = m.length, borde = 4;
+  const escala = Math.max(4, Math.round(lado / (n + borde * 2)));
+  const total = (n + borde * 2) * escala;
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = total;
+  const ctx = cv.getContext("2d");
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillRect(0, 0, total, total);
+  ctx.fillStyle = "#000000";
+  for (let y = 0; y < n; y++)
+    for (let x = 0; x < n; x++)
+      if (m[y][x]) ctx.fillRect((x + borde) * escala, (y + borde) * escala, escala, escala);
+  return `<img src="${cv.toDataURL("image/png")}" width="${total}" height="${total}"
+    alt="Código QR del documento"
+    style="display:block;width:${total}px;height:auto;max-width:100%;
+           image-rendering:pixelated;border-radius:3px">`;
 }
 
 /* ---------------- contrato final ---------------- */
